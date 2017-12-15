@@ -1,0 +1,1 @@
+Note: the training data actually sounds better (more expressive, less mechanical) than the version of the data which the model trains on (due to a quirk of the encoding format). 
