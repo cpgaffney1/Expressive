@@ -12,7 +12,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.jfugue.parser.*;
-import nu.xom.*;
 import org.jfugue.midi.*;
 import javax.sound.midi.*;
 import org.staccato.*;
@@ -42,9 +41,9 @@ public class ProjectMusic {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Case c = Case.predict;
-        String path = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\chopin\\";
-        String name = "chpn-p4.mid";
+        Case c = Case.writeForPrediction;
+        String path = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\";
+        String name = "chpn_op9_1.mid";
         BufferedWriter bf = null;
         switch (c) {
             case writeForPrediction:
@@ -52,7 +51,7 @@ public class ProjectMusic {
                 Song humanSong = Parser.parseSong(path + "rec\\" + name);
                 //writeSongForPrediction(toPredict);
                 try {
-                        File outputFile = new File("C:\\Users\\cpgaffney1\\PycharmProjects\\Music\\testData0.txt");
+                        File outputFile = new File("C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\testData0.txt");
                         bf = new BufferedWriter(new FileWriter(outputFile));
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -81,7 +80,7 @@ public class ProjectMusic {
                     toPredict.get(p.mIndex).setEnd(p.start + length);
                     System.out.println(toPredict.get(p.mIndex).readableToString(true));
                 }
-                String out = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\prediction.mid";
+                String out = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\prediction.mid";
                 toPredict.print();
                 try {
                     Parser.sequenceAndWrite(toPredict, null, out, true);
@@ -94,6 +93,8 @@ public class ProjectMusic {
                 Parser.setFilePaths();
                 List<Song> musList = Parser.parseMus();
                 List<Song> recList = Parser.parseRec();
+                musList = Parser.multiply(musList);
+                recList = Parser.multiply(recList);
                 assert musList.size() == recList.size();
                 bf = null;
                 for (int i = 0; i < musList.size(); i++) {
@@ -103,7 +104,7 @@ public class ProjectMusic {
                     normalizeTimes(mus, rec);
                     potentialMatches = Matcher.matchNotes(mus, rec);
                     try {
-                        File outputFile = new File("C:\\Users\\cpgaffney1\\PycharmProjects\\Music\\javaOutput\\javaOutput" + i + ".txt");
+                        File outputFile = new File("C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\javaOutput\\javaOutput" + i + ".txt");
                         bf = new BufferedWriter(new FileWriter(outputFile));
                         writeMatchesAndRec(bf, potentialMatches, rec);
                         bf.close();
@@ -153,7 +154,7 @@ public class ProjectMusic {
     }
 
     private static void visualize(Song mus, Song rec) {
-        final String input = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\matchedNotes.txt";
+        final String input = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\matchedNotes.txt";
         try {
             BufferedReader rd = new BufferedReader(new FileReader(input));
             String line;
@@ -180,8 +181,8 @@ public class ProjectMusic {
                 musEvents.add(new MidiEvent(new MetaMessage(1, musMsg.getBytes(), musMsg.getBytes().length), mus.get(musIndex).getStart()));
                 recEvents.add(new MidiEvent(new MetaMessage(1, recMsg.getBytes(), recMsg.getBytes().length), rec.get(recIndex).getStart()));
             }
-            Parser.sequenceAndWrite(rec, recEvents, "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\recTest.mid", true);
-            Parser.sequenceAndWrite(mus, musEvents, "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\musTest.mid", true);
+            Parser.sequenceAndWrite(rec, recEvents, "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\recTest.mid", true);
+            Parser.sequenceAndWrite(mus, musEvents, "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\musTest.mid", true);
             rd.close();
         } catch (Exception ex) {
             System.out.println(ex);

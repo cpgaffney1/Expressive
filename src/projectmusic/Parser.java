@@ -32,20 +32,23 @@ public class Parser {
     /* rec files indicate live performance with irregular "musical" event times and durations for notes.
     *  Treble and bass are not divided into tracks.
      */
-    private static final String INPUT_PATH_REC = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\liszt\\rec\\liebstrm.mid";
+    private static final String INPUT_PATH_REC = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\liszt\\rec\\liebstrm.mid";
 
     /* rec files indicate live performance with irregular "musical" event times and durations for notes.
     *  Treble and bass ARE divided into tracks.
     *  Currently these files are peculiar because note off events are not denoted - everything is note on. Note off events have velocity 0.
      */
-    private static final String INPUT_PATH_MUS = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\liszt\\mus\\liebstrm.mid";
-    private static final String OUTPUT_PATH = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\AAAtest.mid";
-    private static final String[] DIRS = {"beethoven","chopin","liszt","mendelssohn"};
+    private static final String INPUT_PATH_MUS = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\liszt\\mus\\liebstrm.mid";
+    private static final String OUTPUT_PATH = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\AAAtest.mid";
+    private static final String[] DIRS = {"beethoven","chopin","liszt","mendelssohn","bach","rach","debussy"};
     private static Sequence modifiedParsedSequence;
     private static long lastParsedTick = 0;
     private static long lastSetTick = 0;
     private static float divisionType;
     private static int resolution;
+
+    
+    private static final boolean printParse = false;
 
     private static List<String> recPaths;
     private static List<String> musPaths;
@@ -56,8 +59,8 @@ public class Parser {
         recPaths = new ArrayList<String>();
         musPaths = new ArrayList<String>();
         for(String dir: DIRS) {
-            File recFolder = new File("C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\" + dir + "\\rec\\");
-            String musPath = "C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\" + dir + "\\mus\\";
+            File recFolder = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\" + dir + "\\rec\\");
+            String musPath = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\" + dir + "\\mus\\";
             File[] recFiles = recFolder.listFiles();
             for (int i = 0; i < recFiles.length; i++) {
                 assert(recFiles[i].isFile());
@@ -68,8 +71,21 @@ public class Parser {
         //recPaths.add(INPUT_PATH_REC);
         //musPaths.add(INPUT_PATH_MUS);
     }
+    
+    public static List<Song> multiply(List<Song> lis) {
+        List<Song> mult = new ArrayList<>();
+        for(Song s: lis) {
+            for(int i = 0; i < 12; i++) {
+                Song incremented = new Song(s);
+                for(Note n: incremented) {
+                    n.setKey(n.getKey() + i);
+                }
+                mult.add(incremented);
+            }
+        }
+        return mult;
+    }
 
-    private static final boolean printParse = false;
 
     public static List<Song> parseMus() {
         List<Song> musList = new ArrayList<>();

@@ -18,6 +18,15 @@ public class Song extends ArrayList<Note> {
     
     public String name;
     
+    public Song() {
+        super();
+    }
+    
+    public Song(Song s) {
+        super(s);
+        this.name = s.name;
+    }
+    
     int[] toKeyArray() {
         int notes[] = new int[this.size()];
         for(int i = 0; i < this.size(); i++) {
