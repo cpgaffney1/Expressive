@@ -22,6 +22,8 @@ public class NoteMatch {
     // same as above, except stores longest common substring
     private HashMap<Note, Double> lcs;
     
+    private HashMap<Note, Double> editDist;
+    
     public NoteMatch(Note selfNote) {
         assert(selfNote.isMus());
         this.selfNote = selfNote;
@@ -29,6 +31,7 @@ public class NoteMatch {
         percentSameNotes = new HashMap<>();
         indexOfPotentialMatches = new HashMap<>();
         lcs = new HashMap<>();
+        editDist = new HashMap<>();
     }
     
     public void addMatch(Note matchNote, int index) { 
@@ -38,11 +41,13 @@ public class NoteMatch {
     //public void addRec(Collection<Note> notes) { potentialMatches.addAll(notes); }
     public void setPercentSameNotes(Note candidateNote, double d) { percentSameNotes.put(candidateNote, d); }
     public void setLcs(Note candidateNote, double len) { lcs.put(candidateNote, len); }
+    public void setEditDist(Note candidateNote, double d) {editDist.put(candidateNote, d); }
     
     public Note getSelf() { return selfNote; }
     public Set<Note> getPotentialMatches() { return potentialMatches; }
     public double getPercentSameNotes(Note n) { return percentSameNotes.get(n); }
     public double getLcs(Note n) {return lcs.get(n);}
+    public double getEditDist(Note n) {return editDist.get(n);}
     public int getMatchIndex(Note n) {return indexOfPotentialMatches.get(n);}
     
     // Ex: 0:1/12,3/10,18/4
@@ -50,7 +55,9 @@ public class NoteMatch {
     public String print() {
         String ret = "" + selfNote.getSongIndex() + ":";
         for(Note candidate: potentialMatches) {
-            ret += candidate.getSongIndex() + "/" + lcs.get(candidate) + ",";
+            ret += candidate.getSongIndex() + "/" + lcs.get(candidate) + "/" + 
+                    + editDist.get(candidate) + 
+                    ",";
         }
         ret = ret.substring(0,ret.length()-1);
         return ret;

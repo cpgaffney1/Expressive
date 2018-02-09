@@ -34,24 +34,28 @@ public class ProjectMusic {
     enum Case {
         predict,
         parseAndMatch,
-        writeForPrediction
+        writeForPrediction,
+        parseSongs,
+        readPIDI
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Case c = Case.writeForPrediction;
-        String path = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\";
-        String name = "chpn_op9_1.mid";
+        Case c = Case.parseSongs;
+        String path = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\liszt\\";
+        String name = "liebstrm.mid";
         BufferedWriter bf = null;
+        List<Song> musList;
+        List<Song> recList;
         switch (c) {
             case writeForPrediction:
                 Song toPredict = Parser.parseSong(path + "mus\\" + name);
                 Song humanSong = Parser.parseSong(path + "rec\\" + name);
                 //writeSongForPrediction(toPredict);
                 try {
-                        File outputFile = new File("C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\testData0.txt");
+                        File outputFile = new File("C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\src\\testData0.txt");
                         bf = new BufferedWriter(new FileWriter(outputFile));
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -61,7 +65,7 @@ public class ProjectMusic {
                 List<NoteMatch> potentialMatches = Matcher.matchNotes(toPredict, humanSong);
                     
                 if(bf != null) {
-                    writeMatchesAndRec(bf, potentialMatches, humanSong);
+                    Parser.writeMatchesAndRec(bf, potentialMatches, humanSong);
                     try { bf.close(); }
                         catch (Exception ex) {
                             System.out.println(ex);
@@ -69,21 +73,22 @@ public class ProjectMusic {
                         }
                 }
                 break;
-            case predict:
-                toPredict = Parser.parseSong(path + "mus\\" + name);
-                Song actual = Parser.parseSong(path + "rec\\" + name);
-                List<Prediction> predictions = readPredictions();
-                Song predictedSong = new Song();
-                for(Prediction p: predictions) {
-                    long length = toPredict.get(p.mIndex).getEnd() - toPredict.get(p.mIndex).getStart();
-                    toPredict.get(p.mIndex).setStart(p.start);
-                    toPredict.get(p.mIndex).setEnd(p.start + length);
-                    System.out.println(toPredict.get(p.mIndex).readableToString(true));
-                }
-                String out = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\prediction.mid";
-                toPredict.print();
+            case readPIDI:
+                Song inferred = Parser.readPIDI("C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\inferredMus\\inferred0.txt");
+                String out = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\inferred0.mid";
                 try {
-                    Parser.sequenceAndWrite(toPredict, null, out, true);
+                    Parser.sequenceAndWrite(inferred, null, out, true);
+                } catch(Exception ex) {
+                    System.out.println(ex);
+                    ex.printStackTrace();
+                }
+                break;
+            case predict:
+                Song predictions = Parser.readPIDI("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\predictions0.txt");
+                out = "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\predictions0.mid";
+                predictions.print();
+                try {
+                    Parser.sequenceAndWrite(predictions, null, out, true);
                 } catch(Exception ex) {
                     System.out.println(ex);
                     ex.printStackTrace();
@@ -91,10 +96,10 @@ public class ProjectMusic {
                 break;
             case parseAndMatch:
                 Parser.setFilePaths();
-                List<Song> musList = Parser.parseMus();
-                List<Song> recList = Parser.parseRec();
-                musList = Parser.multiply(musList);
-                recList = Parser.multiply(recList);
+                musList = Parser.parseMus();
+                recList = Parser.parseRec();
+                //musList = Parser.multiply(musList);
+                //recList = Parser.multiply(recList);
                 assert musList.size() == recList.size();
                 bf = null;
                 for (int i = 0; i < musList.size(); i++) {
@@ -106,26 +111,59 @@ public class ProjectMusic {
                     try {
                         File outputFile = new File("C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\javaOutput\\javaOutput" + i + ".txt");
                         bf = new BufferedWriter(new FileWriter(outputFile));
-                        writeMatchesAndRec(bf, potentialMatches, rec);
+                        Parser.writeMatchesAndRec(bf, potentialMatches, rec);
                         bf.close();
                     } catch (Exception ex) {
                         System.out.println(ex);
                         ex.printStackTrace();
                     }                   
-                    
-                    //visualize(mus, rec);
-//                    Sequence seq = null;
-//                    try {
-//                        seq = Parser.sequenceAndWrite(rec, null, "", true);
-//                    } catch (Exception ex) {
-//                        System.out.println(ex);
-//                        ex.printStackTrace();
-//                    }
-//                    if (seq != null) {
-//                        play(seq);
-//                    }
                 }
                 break;
+            case parseSongs:
+                musList = Parser.parseData(true);
+                recList = Parser.parseData(false);
+                musList = Parser.multiply(musList);
+                recList = Parser.multiply(recList);
+                
+                int index = 0;
+                for(Song s: musList) {
+                    final String dir = "C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\mus";
+                    s.writePIDI(dir + "\\javaOutput" + index + ".txt", false);
+                    index++;
+                }
+                
+                index = 0;
+                for(Song s: recList) {
+                    final String dir = "C:\\Users\\cpgaf\\PycharmProjects\\ExpressiveAI\\rec";
+                    s.writePIDI(dir + "\\javaOutput" + index + ".txt", false);
+                    index++;
+                }
+                    /*try {
+                        File outputFile = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\test.mid");
+                        bf = new BufferedWriter(new FileWriter(outputFile));
+                        for(Song s: recList) {
+                            Parser.sequenceAndWrite(s, null, outputFile.getAbsolutePath(), true);
+                        }
+                        bf.close();
+                    } catch (Exception ex) {
+                        System.out.println(ex);
+                        ex.printStackTrace();
+                    }*/
+                /*recList = Parser.parseRec();
+                //recList = Parser.multiply(recList);
+                try {
+                        File outputFile = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\out.txt");
+                        bf = new BufferedWriter(new FileWriter(outputFile));
+                        for(Song r: recList) {
+                            rec.write(bf, true);
+                        }
+                        bf.close();
+                    } catch (Exception ex) {
+                        System.out.println(ex);
+                        ex.printStackTrace();
+                    }  */
+                break;
+             
             default:
                 break;
         }
@@ -218,79 +256,6 @@ public class ProjectMusic {
         }
     }
 
-    // output {musNote}:{candNote1}/lcsPercent/percentNotes/distPercent;...
-    private static void writeMatchesAndRec(BufferedWriter bf, List<NoteMatch> potentialMatches, Song rec) {
-        try {
-            int skippedCount = 0;
-            int counter = 0;
-            for (NoteMatch nm : potentialMatches) {
-                assert (nm.getSelf().getSongIndex() == counter);
-                counter++;
-                String line = "";
-                line += nm.getSelf().toString() + ":";
-                for (Note match : nm.getPotentialMatches()) {
-                    line += match.toString() + "/" + nm.getLcs(match) + "/" + nm.getPercentSameNotes(match) + "/"
-                            + (double) Math.abs(nm.getSelf().getSongIndex() - match.getSongIndex()) / potentialMatches.size() + ";";
-                }
-                if(nm.getPotentialMatches().size() > 0) line = line.substring(0, line.length() - 1);
-                else skippedCount += 1;
-                bf.write(line);
-                bf.newLine();
-            }
-            bf.write("***");
-            bf.newLine();
-            bf.write(rec.name);
-            bf.newLine();
-            for (Note n : rec) {
-                //System.out.println(n.print());
-                bf.write(n.toString());
-                bf.newLine();
-            }
-            bf.write("---");
-            bf.newLine();
-            System.out.println("skipped = " + skippedCount);
-        } catch (Exception ex) {
-            System.out.println(ex);
-            ex.printStackTrace();
-        }
-    }
-
-    private static void writeSongForPrediction(Song mus) {
-        try {
-            File outputFile = new File("C:\\Users\\cpgaffney1\\PycharmProjects\\Music\\testMus.txt");
-            BufferedWriter bf = new BufferedWriter(new FileWriter(outputFile));
-            for (Note n : mus) {
-                bf.write(n.toString());
-                bf.newLine();
-            }
-            bf.close();
-        } catch (Exception ex) {
-            System.out.println(ex);
-            ex.printStackTrace();
-        }
-    }
     
-    private static List<Prediction> readPredictions() {
-        List<Prediction> predictions = new ArrayList<>();
-        try {
-            File inFile = new File("C:\\Users\\cpgaffney1\\Documents\\NetBeansProjects\\ProjectMusic\\files\\predictions.txt");
-            BufferedReader bf = new BufferedReader(new FileReader(inFile));
-            while(true) {
-                String line = bf.readLine();
-                if(line == null) break;
-                String[] arr = line.split(",");
-                int mIndex = (Integer.parseInt(arr[0]));
-                long start = (long)(Double.parseDouble(arr[1]) * 4);
-                long length = (long)(Double.parseDouble(arr[2]) * 4);
-                Prediction p = new Prediction(mIndex, start, length);
-                predictions.add(p);
-            }
-            bf.close();
-        } catch (Exception ex) {
-            System.out.println(ex);
-            ex.printStackTrace();
-        }
-        return predictions;
-    }
 
 }

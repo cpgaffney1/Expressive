@@ -109,6 +109,9 @@ public class Note {
         if(on) return "Note on @" + start + ", " + Note.getNoteName(key) + " key=" + key + " velocity: " + onVelocity + ", length= " + (end - start);
         else return "Note off @" + end + ", " + Note.getNoteName(key) + " key=" + key + " velocity: " + offVelocity;
     }
+    
+   
+
     /*
     public static Triple<char, boolean, int> split(String name) throws Exception {
         Triple<char, boolean, int> ret

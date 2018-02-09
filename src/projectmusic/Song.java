@@ -4,6 +4,9 @@
  * and open the template in the editor.
  */
 package projectmusic;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -79,6 +82,52 @@ public class Song extends ArrayList<Note> {
     public void print() {
         for (Note n : this) {
             System.out.println(n.toString());
+        }
+    }
+    
+    public void writePIDI(String path, boolean name) {
+        try {
+            File outputFile = new File(path);
+            BufferedWriter bf = new BufferedWriter(new FileWriter(outputFile));
+            if(name) {
+                bf.write("NAME");
+                bf.newLine();
+                bf.write(this.name);
+                bf.newLine();
+            } else {
+                bf.write("NO NAME");
+                bf.newLine();
+            }
+            for (Note n : this) {
+                //System.out.println(n.print());
+                bf.write(n.toString());
+                bf.newLine();
+            }
+            bf.close();
+        } catch (Exception ex) {
+            System.out.println(ex);
+            ex.printStackTrace();
+        }
+    }
+    public void writePIDI(BufferedWriter bf, boolean name) {
+        try {
+            if(name) {
+                bf.write("NAME");
+                bf.newLine();
+                bf.write(this.name);
+                bf.newLine();
+            } else {
+                bf.write("NO NAME");
+                bf.newLine();
+            }
+            for (Note n : this) {
+                //System.out.println(n.print());
+                bf.write(n.toString());
+                bf.newLine();
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+            ex.printStackTrace();
         }
     }
     
