@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +38,7 @@ public class Parser {
     private static final int NOTE_ON = 0x90;
     private static final int NOTE_OFF = 0x80;
     private static final int TEMPO_MSG = 0x51;
-    private static final int DEFAULT_TEMPO = 120;
+    public static final int DEFAULT_TEMPO = 480;
 
     /* rec files indicate live performance with irregular "musical" event times and durations for notes.
     *  Treble and bass are not divided into tracks.
@@ -59,7 +60,7 @@ public class Parser {
     private static long lastSetTick = 0;
     private static float divisionType;
     private static int resolution;
-    
+
     private static List<Integer> tempos;
     private static List<Long> tempoEventTimes;
 
@@ -68,7 +69,7 @@ public class Parser {
 
     private static List<String> recPaths;
     private static List<String> musPaths;
-
+    
     // Take care to ensure that the file paths are arranged in the proper order for the mus and rec list
     // the path at index i in both lists must correspond to the same work of music.
     public static void setFilePaths() {
@@ -86,15 +87,185 @@ public class Parser {
                 musPaths.add(musPath + recFiles[i].getName());
             }
         }
+        
+        // override directly set paths
+        recPaths = new ArrayList<String>(Arrays.asList(
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\elise.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\moonlight.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\son23_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\son23_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\son23_3.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w5.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w7.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w8.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w9.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w10.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w11.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w12.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w15.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\rec\\w16.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\rec\\chpn_op9_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\rec\\chpn_op9_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\rec\\chpn_op27_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\rec\\chpn_op27_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\rec\\chpn_op37_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\rec\\chpn_op62_2.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\debussy\\rec\\arab_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\debussy\\rec\\clair.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\liszt\\rec\\liebstrm.mid",     
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\rach\\rec\\rach0302.mid", 
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schub_d760_1.mid", 
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schub_d760_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schub_d760_3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schub_d760_4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schumm-1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schumm-2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schumm-3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schumm-4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schumm-5.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\rec\\schumm-6.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_5.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_6.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_7.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\rec\\scn16_8.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\pathet1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\pathet2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\pathet3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\rec\\son5_1.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\rec\\mendel_op19_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\rec\\mendel_op30_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\rec\\mendel_op62_3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\rec\\mendel_op62_5.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\ravel\\rec\\rav_ondi.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\rach\\rec\\rac_op33_6.mid"
+        ));
+        
+        musPaths = new ArrayList<String>(Arrays.asList(
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\elise.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\moonlight.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\son23_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\son23_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\son23_3.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w5.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w7.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w8.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w9.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w10.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w11.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w12.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w15.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\brahms\\mus\\w16.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\mus\\chpn_op9_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\mus\\chpn_op9_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\mus\\chpn_op27_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\mus\\chpn_op27_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\mus\\chpn_op37_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\chopin\\mus\\chpn_op62_2.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\debussy\\mus\\arab_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\debussy\\mus\\clair.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\liszt\\mus\\liebstrm.mid",     
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\rach\\mus\\rach0302.mid", 
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schub_d760_1.mid", 
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schub_d760_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schub_d760_3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schub_d760_4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schumm-1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schumm-2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schumm-3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schumm-4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schumm-5.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schubert\\mus\\schumm-6.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_4.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_5.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_6.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_7.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\schumann\\mus\\scn16_8.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\pathet1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\pathet2.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\pathet3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\beethoven\\mus\\son5_1.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\mus\\mendel_op19_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\mus\\mendel_op30_1.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\mus\\mendel_op62_3.mid",
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\mendelssohn\\mus\\mendel_op62_5.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\ravel\\mus\\rav_ondi.mid",
+                
+                "C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\rach\\mus\\rac_op33_6.mid"
+        ));
+        
+        
         //recPaths.add(INPUT_PATH_REC);
         //musPaths.add(INPUT_PATH_MUS);
     }
 
-    public static List<Song> parseData(boolean asMus) {
-        int count = 0;
+    public static List<Song> parseData(List<String> paths, boolean asMus) {
         List<Song> songList = new ArrayList<>();
+        for (String path : paths) {
+            Song s;
+            try {
+                s = parseMidi(path, printParse, true, asMus);
+                s.name = path;
+                for (int k = 0; k < s.size(); k++) {
+                    s.get(k).setIndex(k);
+                }
+                if (!asMus) {
+                    s = incorporateTempos(s);
+                }
+                s.sortByIndex();
+                songList.add(s);
+            } catch (Exception ex) {
+                System.out.println(ex);
+                ex.printStackTrace();
+            }
+
+        }
+        return songList;
+    }
+
+    public static List<Song> parseData(boolean asMus) {
         File dataFolder = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\data");
+        File chopin1 = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\data\\chopin");
+        File chopin2 = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\files\\data\\chopin2");
         File[] subfolders = dataFolder.listFiles();
+        List<String> pathList = new ArrayList<>();
+        // Enumerate paths first
+
         for (int i = 0; i < subfolders.length; i++) {
             assert (subfolders[i].isDirectory());
             File[] songFiles = subfolders[i].listFiles();
@@ -102,35 +273,16 @@ public class Parser {
                 assert (songFiles[j].isFile());
                 String[] patharr = songFiles[j].getAbsolutePath().split("\\\\");
                 String name = patharr[patharr.length - 1].split("\\.")[0];
-                if (selectCertainFiles && !(useFiles.contains(name))) {
-                    continue;
-                }
-                Song s;
-                try {
-                    s = parseMidi(songFiles[j].getAbsolutePath(), printParse, true, asMus);
-                    s.name = songFiles[j].getAbsolutePath();
-                    for (int k = 0; k < s.size(); k++) {
-                        s.get(k).setIndex(k);
-                    }
-                    if(!asMus) {
-                        s = incorporateTempos(s);
-                    }
-                    songList.add(s);
-                } catch (Exception ex) {
-                    System.out.println(ex);
-                    ex.printStackTrace();
-                }
-                count++;
-                
+                pathList.add(songFiles[j].getAbsolutePath());
             }
         }
-        return songList;
+        return parseData(pathList, asMus);
     }
 
     public static List<Song> multiply(List<Song> lis) {
         List<Song> mult = new ArrayList<>();
-        // unison, M3, P4, P5, M6
-        int[] transpositions = {0, 4, 5, 7, 9};
+        // unison, P5
+        int[] transpositions = {0, 4, 7};
         for (Song s : lis) {
             for (int i = 0; i < transpositions.length; i++) {
                 Song incremented = new Song(s);
@@ -143,6 +295,22 @@ public class Parser {
         return mult;
     }
 
+    // only returns additional, not the original song
+    public static List<Song> multiply(Song s) {
+        List<Song> mult = new ArrayList<>();
+        // 3rd, P5
+        int[] transpositions = {4, 7};
+        for (int i = 0; i < transpositions.length; i++) {
+            Song incremented = new Song(s);
+            for (Note n : incremented) {
+                n.setKey(n.getKey() + transpositions[i]);
+            }
+            mult.add(incremented);
+        }
+        
+        return mult;
+    }
+
     public static List<Song> parseMus() {
         List<Song> musList = new ArrayList<>();
         try {
@@ -152,11 +320,11 @@ public class Parser {
                 if (selectCertainFiles && !(useFiles.contains(name))) {
                     continue;
                 }
-                Song musNotes = parseMidi(path, printParse, true, true);
-                musNotes.name = path;
-                for (int i = 0; i < musNotes.size(); i++) {
+                Song musNotes = parseSong(path);//parseMidi(path, printParse, true, true);
+                musNotes.name = name;
+                /*for (int i = 0; i < musNotes.size(); i++) {
                     musNotes.get(i).setIndex(i);
-                }
+                }*/
                 musList.add(musNotes);
             }
         } catch (Exception ex) {
@@ -164,6 +332,29 @@ public class Parser {
             ex.printStackTrace();
         }
         return musList;
+    }
+
+    public static List<Song> parseRec() {
+        List<Song> recList = new ArrayList<>();
+        try {
+            for (String path : recPaths) {
+                String[] patharr = path.split("\\\\");
+                String name = patharr[patharr.length - 1].split("\\.")[0];
+                if (selectCertainFiles && !(useFiles.contains(name))) {
+                    continue;
+                }
+                Song recNotes = parseSong(path);//parseMidi(path, printParse, false, false);
+                recNotes.name = name;
+                /*for (int i = 0; i < recNotes.size(); i++) {
+                    recNotes.get(i).setIndex(i);
+                }*/
+                recList.add(recNotes);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+            ex.printStackTrace();
+        }
+        return recList;
     }
 
     public static Song parseSong(String path) {
@@ -183,35 +374,12 @@ public class Parser {
         return song;
     }
 
-    public static List<Song> parseRec() {
-        List<Song> recList = new ArrayList<>();
-        try {
-            for (String path : recPaths) {
-                String[] patharr = path.split("\\\\");
-                String name = patharr[patharr.length - 1].split("\\.")[0];
-                if (selectCertainFiles && !(useFiles.contains(name))) {
-                    continue;
-                }
-                Song recNotes = parseMidi(path, printParse, false, false);
-                recNotes.name = path;
-                for (int i = 0; i < recNotes.size(); i++) {
-                    recNotes.get(i).setIndex(i);
-                }
-                recList.add(recNotes);
-            }
-        } catch (Exception ex) {
-            System.out.println(ex);
-            ex.printStackTrace();
-        }
-        return recList;
-    }
-
-    public static Sequence sequenceAndWrite(Song song, List<MidiEvent> otherEvents, String outputPath, boolean write) throws Exception {
+    public static Sequence sequenceAndWrite(Song song, List<MidiEvent> otherEvents, int tempo, String outputPath, boolean write) throws Exception {
         if (write) {
             assert (!outputPath.equals(""));
         }
         File outputFile = new File(outputPath);
-        Sequence seq = new Sequence(divisionType, resolution);
+        Sequence seq = new Sequence(0, tempo);
         Track t = seq.createTrack();
         for (Note n : song) {
             System.out.println(n.readableToString(true));
@@ -273,7 +441,7 @@ public class Parser {
             ex.printStackTrace();
         }
     }
-    
+
     public static void writeSongForPrediction(Song mus) {
         try {
             File outputFile = new File("C:\\Users\\cpgaf\\OneDrive\\Documents\\NetBeansProjects\\Expressive\\testMus.txt");
@@ -294,8 +462,11 @@ public class Parser {
         try {
             File inFile = new File(path);
             BufferedReader bf = new BufferedReader(new FileReader(inFile));
+            String line = bf.readLine();
+            line = bf.readLine();
+            // TODO just skipping song name here
             while (true) {
-                String line = bf.readLine();
+                line = bf.readLine();
 
                 if (line == null) {
                     break;
@@ -308,7 +479,7 @@ public class Parser {
                 int onv = (int) (Double.parseDouble(arr[2]));;
                 int offv = (int) (Double.parseDouble(arr[3]));;
                 long start = (long) (Double.parseDouble(arr[4]));
-                long length = (long) (Double.parseDouble(arr[5]));
+                long end = (long) (Double.parseDouble(arr[5]));
                 int track = (int) (Double.parseDouble(arr[6]));
                 Note n = new Note();
                 n.setKey(key);
@@ -316,7 +487,7 @@ public class Parser {
                 n.setOnVelocity(onv);
                 n.setOffVelocity(offv);
                 n.setStart(start);
-                n.setEnd(start + length);
+                n.setEnd(end);
                 n.setTrack(track);
                 predictions.add(n);
             }
@@ -327,36 +498,45 @@ public class Parser {
         }
         return predictions;
     }
-    
+
     private static int nextNoteIndexForEventTime(long event, Song song, int previousIndex) {
         int i;
-        for(i = previousIndex; i < song.size(); i++) { 
-            if(song.get(i).getStart() >= event) break;
+        for (i = previousIndex; i < song.size(); i++) {
+            if (song.get(i).getStart() >= event) {
+                break;
+            }
         }
         return i;
     }
-    
+
     private static Song incorporateTempos(Song song) {
-        if(printParse) {
+        if (printParse) {
             System.out.println("Incorporating tempos");
         }
+        long tickRange = song.get(song.size() - 1).getEnd();
+        for (Note n : song) {
+            if (n.getEnd() > tickRange) {
+                tickRange = n.getEnd();
+            }
+        }
+
         final int doubleCutoff = 100;
         Song temposIncorporated = new Song();
         Song startTimeModified = new Song();
         List<Long> startTimesTemp = new ArrayList<>();
-        assert(tempos.size() > 1);
+        assert (tempos.size() > 1);
         long longOffset = 0;
         double remainderOffset = 0;
         int currentTempo = DEFAULT_TEMPO;
         int nextTempoIndex = 0;
-        long tickRange =  song.get(song.size()-1).getEnd();
-        for(long i = 0; i < tickRange; i++) {
+        for (long i = 0; i <= tickRange; i++) {
             // incorporate end time
-            for(int j = 0; j < startTimeModified.size(); j++) {
+            for (int j = 0; j < startTimeModified.size(); j++) {
                 Note n = startTimeModified.get(j);
-                if(n.getEnd() == i) {
+                assert (n.getEnd() <= tickRange);
+                if (n.getEnd() == i) {
                     long newStart = startTimesTemp.get(j);
-                    long newEnd = longOffset + (int)remainderOffset;
+                    long newEnd = longOffset + (int) Math.ceil(remainderOffset);
                     n.setDuration(newStart, newEnd);
                     temposIncorporated.add(n);
                     startTimeModified.remove(j);
@@ -365,28 +545,30 @@ public class Parser {
                 }
             }
             //incorporate start time
-            while(!(song.isEmpty()) && song.get(0).getStart() == i) {
+            while (!(song.isEmpty()) && song.get(0).getStart() == i) {
                 Note n = song.get(0);
-                startTimesTemp.add(longOffset + (int)remainderOffset);
+                startTimesTemp.add(longOffset + (int) remainderOffset);
                 startTimeModified.add(n);
                 song.remove(0);
             }
             // find next tempo if available
-            if(nextTempoIndex < tempos.size() && tempoEventTimes.get(nextTempoIndex) == i) {
+            if (nextTempoIndex < tempos.size() && tempoEventTimes.get(nextTempoIndex) == i) {
                 // this is the latest tempo that applies
                 currentTempo = tempos.get(nextTempoIndex);
                 nextTempoIndex++;
             }
             //add to offset
-            double tempoRatio = (double)DEFAULT_TEMPO / (double)currentTempo;
+            double tempoRatio = (double) DEFAULT_TEMPO / (double) currentTempo;
             remainderOffset += tempoRatio;
-            if(remainderOffset > doubleCutoff) {
+            if (remainderOffset > doubleCutoff) {
                 remainderOffset -= doubleCutoff;
                 longOffset += doubleCutoff;
             }
-            assert(remainderOffset <= doubleCutoff);
-            assert(longOffset % doubleCutoff == 0);
+            assert (remainderOffset <= doubleCutoff);
+            assert (longOffset % doubleCutoff == 0);
         }
+        assert (song.isEmpty());
+        assert (startTimeModified.isEmpty());
         return temposIncorporated;
         /*
         int latestNoteIndex = 0;
@@ -404,7 +586,7 @@ public class Parser {
             }
         }
         
-        */      
+         */
     }
 
     // hasNoNoteOff is set to true for mus files downloaded from http://www.piano-midi.de/midi_files.htm for some peculiar encoding reason, otherwise false.
@@ -464,15 +646,16 @@ public class Parser {
                         if (n == null) {
                             System.out.println("Alert: Note " + key + " ended without a beginning.");
                         } else {
-                            n.setOffVelocity(velocity);
-                            assert (event.getTick() >= 0);
-                            n.setEnd(event.getTick());
-                            openNotes.remove(n);
+                            // start is same as end time
                             if (event.getTick() == n.getStart()) {
-                                System.out.println(n.readableToString(true));
-                                System.out.println(n.readableToString(false));
+                                parsedNotes.remove(n);
+                            } else {
+                                n.setOffVelocity(velocity);
+                                assert (event.getTick() > 0);
+                                n.setEnd(event.getTick());
+                                event = noteEndParsed(event);
                             }
-                            event = noteEndParsed(event);
+                            openNotes.remove(n);
                         }
                     } else if (sm.getCommand() == NOTE_ON) {
                         int key = sm.getData1();
@@ -579,5 +762,17 @@ public class Parser {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    private static <T> T[] concatenate(T[] a, T[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        @SuppressWarnings("unchecked")
+        T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+
+        return c;
     }
 }
